@@ -15,7 +15,14 @@ sudo cp /etc/dhcpcd.conf configs/
 sudo cp /etc/hostname configs/
 sudo cp /boot/config.txt configs/
 
-# 3. Add all changes (configs and scripts) to the staging area
+# 3. User files (Does not required sudo)
+cp /MQTT_Test/Pi_Publisher.py scripts/
+cp /MQTT_Test/Pi_Subscriber.py scripts/
+cp /MQTT_Bidirectional/bidirectional_main.py scripts/
+cp /MQTT_Bidirectional/config.py scripts/
+cp /MQTT_Bidirectional/publisher.py scripts/
+cp /MQTT_Bidirectional/subscriber.py scripts/
+# 4. Add all changes (configs and scripts) to the staging area
 git add .
 
 # 4. Check if there are any changes staged to prevent empty commits
