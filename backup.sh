@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # --- Configuration ---
-REPO_DIR="/home/pi/pi-backup"
+REPO_DIR="/home/bee/pi-backup"
 GIT_BRANCH="main" # Use 'master' if you initialized the old way
 
 # --- Core Logic ---
