@@ -15,4 +15,4 @@ TOPIC_PUBLISH = "command/esp32"
 
 # --- Client Settings ---
 CLIENT_ID = "Pi_BiDir_Client"
-PUBLISH_INTERVAL_SEC = 5
+PUBLISH_INTERVAL_SEC = 20

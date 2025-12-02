@@ -8,7 +8,7 @@ picam2.configure(config)
 
 # Define save path and interval (in seconds)
 SAVE_PATH = "/home/bee/Camera/images/"
-INTERVAL_SECONDS = 5  # 1 hour
+INTERVAL_SECONDS = 5  
 
 # Start the camera preview and wait for sensor to stabilise
 picam2.start()
@@ -25,5 +25,8 @@ while True:
 
     # Wait for the next interval
     time.sleep(INTERVAL_SECONDS)
+    
+    
+    
     
     
