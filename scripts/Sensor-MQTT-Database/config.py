@@ -7,6 +7,7 @@ KEEP_ALIVE_SEC = 60          # keep-alive timeout of 60 seconds
 
 # --- SQLite Database Configuration ---
 DB_NAME = "/home/bee/Sensor_MQTT_Firebase/algae_project.db"
+BACKLOG_CHECK_INTERVAL_SEC = 20
 
 # ---Firebase Configuration ---
 # Path to Service Account JSON file (Used for authentication)
@@ -26,4 +27,4 @@ TOPIC_PUBLISH = "command/esp32"
 
 # --- Client Settings ---
 CLIENT_ID = "Pi_BiDir_Client"
-PUBLISH_INTERVAL_SEC = 20
+#PUBLISH_INTERVAL_SEC = 20

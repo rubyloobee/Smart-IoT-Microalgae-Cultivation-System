@@ -112,3 +112,35 @@ def update_upload_flag(timestamp):
 
     except sqlite3.Error as e:
         print(f"Error updating upload flag: {e}")
+        
+def fetch_unuploaded_data():
+    """Fetches all records from both logs where the 'uploaded' flag is 0."""
+    unuploaded_records = {
+        'main_tank': [],
+        'sampling_tank': []
+    }
+    
+    try:
+        with sqlite3.connect(DB_NAME) as conn:
+            cursor = conn.cursor()
+            
+            # Fetch unuploaded main tank data
+            cursor.execute("SELECT timestamp, temperature_C, light_intensity_lux, water_level_cm, pH_value FROM main_tank_logs WHERE uploaded = 0")
+            # cursor.description contains column names with their desciption (display size, type code...)
+            # Get column names to create dictionaries for easy use
+            main_columns = [col[0] for col in cursor.description]
+            # cursor.fetchall contains data values belonging to the column names
+            for row in cursor.fetchall():
+                # Convert the tuple row into a dictionary
+                unuploaded_records['main_tank'].append(dict(zip(main_columns, row)))
+            
+            # Fetch unuploaded sampling tank data
+            cursor.execute("SELECT timestamp, EC_value FROM sampling_tank_logs WHERE uploaded = 0")
+            sampling_columns = [col[0] for col in cursor.description]
+            for row in cursor.fetchall():
+                unuploaded_records['sampling_tank'].append(dict(zip(sampling_columns, row)))
+
+    except sqlite3.Error as e:
+        print(f"Error fetching unuploaded data: {e}")
+        
+    return unuploaded_records

@@ -6,7 +6,7 @@ from config import (
     MAIN_TANK_COLLECTION, SAMPLING_TANK_COLLECTION
 )
 import json
-from sqlite_handler import insert_main_data, insert_sampling_data, update_upload_flag
+from sqlite_handler import insert_main_data, insert_sampling_data, update_upload_flag, fetch_unuploaded_data
 
 def upload_to_firestore(db, collection_name, data):
     """Attempts to upload a single record to Firestore."""
@@ -62,7 +62,6 @@ def on_message(client, userdata, msg):
         
     elif msg.topic == TOPIC_SUBSCRIBE_SAMPLE:
         print("-> Actions to log sample tank data...")
-        insert_sampling_data(data)
         local_success = insert_sampling_data(data)
         collection = SAMPLING_TANK_COLLECTION
         
@@ -73,3 +72,42 @@ def on_message(client, userdata, msg):
         
         if cloud_success:
             update_upload_flag(data.get('timestamp'))
+            
+def process_and_upload_backlog(db_client):
+    """
+    Checks the local database for unuploaded records and attempts to upload them.
+    Implements the 'Store-and-Forward' pattern.
+    """
+    # Use the initialised Firestore client object
+    if not db_client:
+        print("Skipping backlog upload: Firestore client is not initialized.")
+        return
+        
+    print("\n--- Checking for unuploaded data (backlog) ---")
+    
+    # 1. Fetch all records with uploaded = 0
+    backlog = fetch_unuploaded_data()
+    
+    uploaded_count = 0
+    
+    # 2. Iterate through main tank backlog
+    for record in backlog['main_tank']:
+        # Attempt to upload to Firestore
+        if upload_to_firestore(db_client, MAIN_TANK_COLLECTION, record):
+            # If successful, update the local database flag to 1
+            # The timestamp is the key to update the flag
+            update_upload_flag(record.get('timestamp'))
+            uploaded_count += 1
+            
+    # 3. Iterate through sampling tank backlog
+    for record in backlog['sampling_tank']:
+        # Attempt to upload to Firestore
+        if upload_to_firestore(db_client, SAMPLING_TANK_COLLECTION, record):
+            # If successful, update the local database flag to 1
+            update_upload_flag(record.get('timestamp'))
+            uploaded_count += 1
+            
+    if uploaded_count > 0:
+        print(f"--- Backlog upload complete: {uploaded_count} records sent. ---")
+    else:
+        print("--- Backlog check complete: No unuploaded records found. ---")

@@ -8,7 +8,7 @@ from firebase_admin import credentials, firestore
 
 # Import configuration and handler functions
 from config import *
-from subscriber import on_message
+from subscriber import on_message, process_and_upload_backlog
 from publisher import publish_status
 from sqlite_handler import init_db
 
@@ -91,18 +91,25 @@ client.connect(BROKER_ADDRESS, BROKER_PORT, KEEP_ALIVE_SEC)  # port 1883 (standa
 # This keeps the connection alive, sends keep-alives, and handles protocol tasks (Pub/Sub)
 client.loop_start()
 
+userdata = client.user_data_get()
+
 # 2. Main program loop for periodic publishing
 try:
 #     print(f"\nStarting continuous publishing every {PUBLISH_INTERVAL_SEC} seconds...")
     while True:
-        # PublisRRRh messages from the Pi to the ESP32
-#         publish_status(client) 
+        # Check and upload unuploaded data from SQLite to Firestore (Store-and-Forward)
+        process_and_upload_backlog(userdata.get('db_client'))
         
         # Wait for the specified interval
-        time.sleep(PUBLISH_INTERVAL_SEC)
+        time.sleep(BACKLOG_CHECK_INTERVAL_SEC)
+#         # Publish messages from the Pi to the ESP32
+#         publish_status(client) 
+#         
+#         # Wait for the specified interval
+#         time.sleep(PUBLISH_INTERVAL_SEC)
 
 except KeyboardInterrupt:
-    print("\nPublisher script stopped by user.")
+    print("\nScript stopped by user.")
 
 # Guarantee cleanup code is executed before program terminates
 finally:
